@@ -11,15 +11,15 @@ import Data from "./pages/Data.tsx";
 
 const router = createBrowserRouter([
   {
-    path: "/login",
+    path: "/frontend-iot/login",
     element: <Login />,
   },
   {
-    path: "/signup",
+    path: "/frontend-iot/signup",
     element: <SignUp />,
   },
   {
-    path: "/",
+    path: "/frontend-iot",
     element: <Home />,
     children: [
       {

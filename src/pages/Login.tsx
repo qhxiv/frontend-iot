@@ -12,7 +12,7 @@ export default function Login() {
         </form>
 
         <Button asChild className="mt-4">
-          <Link to={"/dashboard"}>Log in</Link>
+          <Link to={"/frontend-iot/dashboard"}>Log in</Link>
         </Button>
 
         <div className="flex flex-col mt-4 text-center text-gray-400 select-none">
@@ -23,7 +23,7 @@ export default function Login() {
           <span>
             Don't have an account?{" "}
             <Button asChild variant="link">
-              <Link to={"/signup"}>Sign up</Link>
+              <Link to={"/frontend-iot/signup"}>Sign up</Link>
             </Button>
           </span>
         </div>

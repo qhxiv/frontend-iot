@@ -23,11 +23,11 @@ export default function Home() {
                   asChild
                   variant="ghost"
                   size="navIcon"
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate("/frontend-iot/dashboard")}
                 >
                   <Gauge
                     className={`p-4 ${
-                      location.pathname === "/dashboard"
+                      location.pathname === "/frontend-iot/dashboard"
                         ? "text-primary"
                         : "text-gray-300"
                     }`}
@@ -47,11 +47,11 @@ export default function Home() {
                   asChild
                   variant="ghost"
                   size="navIcon"
-                  onClick={() => navigate("/data")}
+                  onClick={() => navigate("/frontend-iot/data")}
                 >
                   <Database
                     className={`p-4 ${
-                      location.pathname === "/data"
+                      location.pathname === "/frontend-iot/data"
                         ? "text-primary"
                         : "text-gray-300"
                     }`}
@@ -71,11 +71,11 @@ export default function Home() {
                   asChild
                   variant="ghost"
                   size="navIcon"
-                  onClick={() => navigate("/profile")}
+                  onClick={() => navigate("/frontend-iot/profile")}
                 >
                   <User
                     className={`p-4 ${
-                      location.pathname === "/profile"
+                      location.pathname === "/frontend-iot/profile"
                         ? "text-primary"
                         : "text-gray-300"
                     }`}
@@ -96,7 +96,7 @@ export default function Home() {
                 asChild
                 variant="destructiveGhost"
                 size="navIcon"
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/frontend-iot/login")}
               >
                 <LogOut className="p-4" />
               </Button>

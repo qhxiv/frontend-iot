@@ -19,7 +19,7 @@ export default function SignUp() {
           <span>
             Already have an account?{" "}
             <Button asChild variant="link">
-              <Link to={"/login"}>Log in</Link>
+              <Link to={"/frontend-iot/login"}>Log in</Link>
             </Button>
           </span>
         </div>
