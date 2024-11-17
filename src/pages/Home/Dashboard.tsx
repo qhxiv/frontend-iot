@@ -7,19 +7,130 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
+import { useEffect, useState } from "react";
 import { DualRangeSlider } from "@/components/ui/dual-range-slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useDebounce } from "@uidotdev/usehooks";
+import axios from "axios";
 
 export default function Dashboard() {
   const [tempLimit, setTempLimit] = useState([0, 100]);
+  const debouncedTempLimit = useDebounce(tempLimit, 500);
+
   const [humidityLimit, setHumidityLimit] = useState([0, 100]);
+  const debouncedHumidityLimit = useDebounce(humidityLimit, 500);
+
   const [isAuto, setIsAuto] = useState(true);
   const [isLightOn, setIsLightOn] = useState(false);
   const [isFogOn, setIsFogOn] = useState(false);
   const [isFanOn, setIsFanOn] = useState(false);
+
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    const [minTemp, maxTemp] = debouncedTempLimit;
+
+    try {
+      axios
+        .post(
+          `${apiUrl}/send-mqtt`,
+          { minTemp, maxTemp },
+          { withCredentials: true }
+        )
+        .then((res) => console.log(res));
+    } catch (error) {
+      console.log(error);
+    }
+  }, [apiUrl, debouncedTempLimit]);
+
+  useEffect(() => {
+    const [minHumidity, maxHumidity] = debouncedHumidityLimit;
+
+    try {
+      axios
+        .post(
+          `${apiUrl}/send-mqtt`,
+          { minHumidity, maxHumidity },
+          { withCredentials: true }
+        )
+        .then((res) => console.log(res));
+    } catch (error) {
+      console.log(error);
+    }
+  }, [apiUrl, debouncedHumidityLimit]);
+
+  function handleAutoSwitchChange(checked: boolean) {
+    try {
+      axios
+        .post(
+          `${apiUrl}/send-mqtt`,
+          { type: checked ? "auto" : "manual" },
+          { withCredentials: true }
+        )
+        .then((res) => {
+          console.log(res);
+          setIsAuto(checked);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function handleLightSwitchChange(checked: boolean) {
+    try {
+      if (!isAuto)
+        axios
+          .post(
+            `${apiUrl}/send-mqtt`,
+            { light: isLightOn ? "on" : "off" },
+            { withCredentials: true }
+          )
+          .then((res) => {
+            console.log(res);
+            setIsLightOn(checked);
+          });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function handleFogSwitchChange(checked: boolean) {
+    try {
+      if (!isAuto)
+        axios
+          .post(
+            `${apiUrl}/send-mqtt`,
+            { fog: isFogOn ? "on" : "off" },
+            { withCredentials: true }
+          )
+          .then((res) => {
+            console.log(res);
+            setIsFogOn(checked);
+          });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function handleFanSwitchChange(checked: boolean) {
+    try {
+      if (!isAuto)
+        axios
+          .post(
+            `${apiUrl}/send-mqtt`,
+            { fan: isFanOn ? "on" : "off" },
+            { withCredentials: true }
+          )
+          .then((res) => {
+            console.log(res);
+            setIsFanOn(checked);
+          });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -117,7 +228,11 @@ export default function Dashboard() {
         {/* Devices control */}
         <div className="flex flex-col space-y-4 w-60">
           <div className="flex items-center space-x-4">
-            <Switch id="auto" checked={isAuto} onCheckedChange={setIsAuto} />
+            <Switch
+              id="auto"
+              checked={isAuto}
+              onCheckedChange={handleAutoSwitchChange}
+            />
             <Label className="text-xl" htmlFor="auto">
               Auto mode
             </Label>
@@ -129,7 +244,7 @@ export default function Dashboard() {
                 id="light"
                 disabled={isAuto}
                 checked={isLightOn}
-                onCheckedChange={setIsLightOn}
+                onCheckedChange={handleLightSwitchChange}
               />
               <Label className="text-lg" htmlFor="light">
                 Light
@@ -141,7 +256,7 @@ export default function Dashboard() {
                 id="fog"
                 disabled={isAuto}
                 checked={isFogOn}
-                onCheckedChange={setIsFogOn}
+                onCheckedChange={handleFogSwitchChange}
               />
               <Label className="text-lg" htmlFor="fog">
                 Fog
@@ -153,7 +268,7 @@ export default function Dashboard() {
                 id="fan"
                 disabled={isAuto}
                 checked={isFanOn}
-                onCheckedChange={setIsFanOn}
+                onCheckedChange={handleFanSwitchChange}
               />
               <Label className="text-lg" htmlFor="fan">
                 Fan
@@ -172,6 +287,8 @@ export default function Dashboard() {
 }
 
 function Chart() {
+  // const [chartData, setChartData] = useState([]);
+
   const chartData = [
     { time: "10:00:00", temperature: 186, humidity: 10 },
     { time: "10:00:05", temperature: 305, humidity: 200 },
