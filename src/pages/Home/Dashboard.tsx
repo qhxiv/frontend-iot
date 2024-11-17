@@ -7,7 +7,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DualRangeSlider } from "@/components/ui/dual-range-slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,12 +16,6 @@ import { useDebounce } from "@uidotdev/usehooks";
 import axios from "axios";
 
 export default function Dashboard() {
-  const [tempLimit, setTempLimit] = useState([0, 100]);
-  const debouncedTempLimit = useDebounce(tempLimit, 500);
-
-  const [humidityLimit, setHumidityLimit] = useState([0, 100]);
-  const debouncedHumidityLimit = useDebounce(humidityLimit, 500);
-
   const [isAuto, setIsAuto] = useState(true);
   const [isLightOn, setIsLightOn] = useState(false);
   const [isFogOn, setIsFogOn] = useState(false);
@@ -29,44 +23,51 @@ export default function Dashboard() {
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  useEffect(() => {
-    const [minTemp, maxTemp] = debouncedTempLimit;
+  const [tempLimit, setTempLimit] = useState([0, 100]);
+  const debouncedTempLimit = useDebounce(tempLimit, 500);
 
+  const [humidityLimit, setHumidityLimit] = useState([0, 100]);
+  const debouncedHumidityLimit = useDebounce(humidityLimit, 500);
+
+  const [minTemp, maxTemp] = debouncedTempLimit;
+  const [minHumidity, maxHumidity] = debouncedHumidityLimit;
+
+  const autoModeData = useMemo(
+    () => ({
+      type: "auto",
+      minHumidity,
+      maxHumidity,
+      minTemp,
+      maxTemp,
+    }),
+    [maxHumidity, maxTemp, minHumidity, minTemp]
+  );
+
+  useEffect(() => {
     try {
       axios
-        .post(
-          `${apiUrl}/send-mqtt`,
-          { minTemp, maxTemp },
-          { withCredentials: true }
-        )
+        .post(`${apiUrl}/send-mqtt`, autoModeData, { withCredentials: true })
         .then((res) => console.log(res));
     } catch (error) {
       console.log(error);
     }
-  }, [apiUrl, debouncedTempLimit]);
+  }, [apiUrl, autoModeData]);
 
-  useEffect(() => {
-    const [minHumidity, maxHumidity] = debouncedHumidityLimit;
-
-    try {
-      axios
-        .post(
-          `${apiUrl}/send-mqtt`,
-          { minHumidity, maxHumidity },
-          { withCredentials: true }
-        )
-        .then((res) => console.log(res));
-    } catch (error) {
-      console.log(error);
-    }
-  }, [apiUrl, debouncedHumidityLimit]);
+  const manualModeData = {
+    type: "manual",
+    light: isLightOn ? "on" : "off",
+    fog: isFogOn ? "on" : "off",
+    fan: isFanOn ? "on" : "off",
+  };
 
   function handleAutoSwitchChange(checked: boolean) {
     try {
       axios
         .post(
           `${apiUrl}/send-mqtt`,
-          { type: checked ? "auto" : "manual" },
+          checked
+            ? autoModeData
+            : { ...manualModeData, type: checked ? "auto" : "manual" },
           { withCredentials: true }
         )
         .then((res) => {
@@ -84,7 +85,7 @@ export default function Dashboard() {
         axios
           .post(
             `${apiUrl}/send-mqtt`,
-            { light: isLightOn ? "on" : "off" },
+            { ...manualModeData, light: checked ? "on" : "off" },
             { withCredentials: true }
           )
           .then((res) => {
@@ -102,7 +103,7 @@ export default function Dashboard() {
         axios
           .post(
             `${apiUrl}/send-mqtt`,
-            { fog: isFogOn ? "on" : "off" },
+            { ...manualModeData, fog: checked ? "on" : "off" },
             { withCredentials: true }
           )
           .then((res) => {
@@ -120,7 +121,7 @@ export default function Dashboard() {
         axios
           .post(
             `${apiUrl}/send-mqtt`,
-            { fan: isFanOn ? "on" : "off" },
+            { ...manualModeData, fan: checked ? "on" : "off" },
             { withCredentials: true }
           )
           .then((res) => {
