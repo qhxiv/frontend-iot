@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { FormEvent, useContext, useState } from "react";
 import axios from "axios";
-import { AuthContext } from "@/App";
+import { AuthContext } from "@/context/AuthContext";
 
 export default function Login() {
   const apiUrl = import.meta.env.VITE_API_URL;

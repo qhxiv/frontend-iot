@@ -7,30 +7,32 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { DualRangeSlider } from "@/components/ui/dual-range-slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useDebounce } from "@uidotdev/usehooks";
 import axios from "axios";
+import { DevicesStatus, SensorData } from "@/App";
+import { DevicesStatusContext } from "@/context/DevicesStatusContext";
+import { SensorDataContext } from "@/SensorDataContext";
+import { ChartDataContext } from "@/context/ChartDataContext";
 
 export default function Dashboard() {
-  const [isAuto, setIsAuto] = useState(true);
-  const [isLightOn, setIsLightOn] = useState(false);
-  const [isFogOn, setIsFogOn] = useState(false);
-  const [isFanOn, setIsFanOn] = useState(false);
-
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  const [isAuto, setIsAuto] = useState(true);
 
   const [tempLimit, setTempLimit] = useState([0, 100]);
   const debouncedTempLimit = useDebounce(tempLimit, 500);
-
   const [humidityLimit, setHumidityLimit] = useState([0, 100]);
   const debouncedHumidityLimit = useDebounce(humidityLimit, 500);
-
   const [minTemp, maxTemp] = debouncedTempLimit;
   const [minHumidity, maxHumidity] = debouncedHumidityLimit;
+
+  const { devicesStatus, setDevicesStatus } = useContext(DevicesStatusContext);
+  const sensorData: SensorData = useContext(SensorDataContext);
 
   const autoModeData = useMemo(
     () => ({
@@ -44,20 +46,25 @@ export default function Dashboard() {
   );
 
   useEffect(() => {
+    let ignore = false;
     try {
-      axios
-        .post(`${apiUrl}/send-mqtt`, autoModeData, { withCredentials: true })
-        .then((res) => console.log(res));
+      if (!ignore)
+        axios
+          .post(`${apiUrl}/send-mqtt`, autoModeData, { withCredentials: true })
+          .then();
     } catch (error) {
       console.log(error);
     }
+    return () => {
+      ignore = true;
+    };
   }, [apiUrl, autoModeData]);
 
   const manualModeData = {
     type: "manual",
-    light: isLightOn ? "on" : "off",
-    fog: isFogOn ? "on" : "off",
-    fan: isFanOn ? "on" : "off",
+    light: devicesStatus.light,
+    fog: devicesStatus.fog,
+    fan: devicesStatus.fan,
   };
 
   function handleAutoSwitchChange(checked: boolean) {
@@ -71,7 +78,7 @@ export default function Dashboard() {
           { withCredentials: true }
         )
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           setIsAuto(checked);
         });
     } catch (error) {
@@ -90,7 +97,10 @@ export default function Dashboard() {
           )
           .then((res) => {
             console.log(res);
-            setIsLightOn(checked);
+            setDevicesStatus({
+              ...devicesStatus,
+              light: checked ? "on" : "off",
+            });
           });
     } catch (error) {
       console.log(error);
@@ -108,7 +118,7 @@ export default function Dashboard() {
           )
           .then((res) => {
             console.log(res);
-            setIsFogOn(checked);
+            setDevicesStatus({ ...devicesStatus, fog: checked ? "on" : "off" });
           });
     } catch (error) {
       console.log(error);
@@ -126,7 +136,7 @@ export default function Dashboard() {
           )
           .then((res) => {
             console.log(res);
-            setIsFanOn(checked);
+            setDevicesStatus({ ...devicesStatus, fan: checked ? "on" : "off" });
           });
     } catch (error) {
       console.log(error);
@@ -139,7 +149,9 @@ export default function Dashboard() {
         {/* Temperature control */}
         <div className="flex flex-col items-center justify-between gap-4">
           <div className="flex items-center justify-center flex-auto border-4 rounded-full border-primary aspect-square">
-            <span className="p-4 text-5xl font-semibold select-none">30°C</span>
+            <span className="p-4 text-5xl font-semibold select-none">
+              {sensorData.temperature}°C
+            </span>
           </div>
 
           <div className="w-full p-4 space-y-5 border rounded-md bg-gray-50 border-border">
@@ -181,7 +193,9 @@ export default function Dashboard() {
         {/* Humidity control */}
         <div className="flex flex-col items-center justify-between gap-4">
           <div className="flex items-center justify-center flex-auto border-4 rounded-full border-primary aspect-square">
-            <span className="text-5xl font-semibold select-none">30</span>
+            <span className="text-5xl font-semibold select-none">
+              {sensorData.humidity}
+            </span>
           </div>
 
           <div className="w-full p-4 space-y-5 border rounded-md bg-gray-50 border-border">
@@ -244,7 +258,7 @@ export default function Dashboard() {
               <Switch
                 id="light"
                 disabled={isAuto}
-                checked={isLightOn}
+                checked={devicesStatus.light === "on"}
                 onCheckedChange={handleLightSwitchChange}
               />
               <Label className="text-lg" htmlFor="light">
@@ -256,7 +270,7 @@ export default function Dashboard() {
               <Switch
                 id="fog"
                 disabled={isAuto}
-                checked={isFogOn}
+                checked={devicesStatus.fog === "on"}
                 onCheckedChange={handleFogSwitchChange}
               />
               <Label className="text-lg" htmlFor="fog">
@@ -268,7 +282,7 @@ export default function Dashboard() {
               <Switch
                 id="fan"
                 disabled={isAuto}
-                checked={isFanOn}
+                checked={devicesStatus.fan === "on"}
                 onCheckedChange={handleFanSwitchChange}
               />
               <Label className="text-lg" htmlFor="fan">
@@ -288,16 +302,7 @@ export default function Dashboard() {
 }
 
 function Chart() {
-  // const [chartData, setChartData] = useState([]);
-
-  const chartData = [
-    { time: "10:00:00", temperature: 186, humidity: 10 },
-    { time: "10:00:05", temperature: 305, humidity: 200 },
-    { time: "10:00:10", temperature: 237, humidity: 120 },
-    { time: "10:00:15", temperature: 73, humidity: 190 },
-    { time: "10:00:20", temperature: 209, humidity: 130 },
-    { time: "10:00:25", temperature: 214, humidity: 140 },
-  ];
+  const chartData = useContext(ChartDataContext);
 
   const chartConfig = {
     temperature: {
@@ -326,25 +331,23 @@ function Chart() {
           tickMargin={8}
           interval={0}
           padding={{
-            left: 10,
-            right: 10,
+            left: 25,
+            right: 25,
           }}
         />
         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
         <ChartLegend content={<ChartLegendContent />} />
         <Line
           dataKey="temperature"
-          type="monotone"
+          type="linear"
           stroke="var(--color-temperature)"
           strokeWidth={2}
-          dot={false}
         />
         <Line
           dataKey="humidity"
-          type="monotone"
+          type="linear"
           stroke="var(--color-humidity)"
           strokeWidth={2}
-          dot={false}
         />
       </LineChart>
     </ChartContainer>
