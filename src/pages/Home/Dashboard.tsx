@@ -208,7 +208,7 @@ export default function Dashboard() {
             />
             <div className="flex justify-between w-full gap-6">
               <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="minHumidity">Min humidity ()</Label>
+                <Label htmlFor="minHumidity">Min humidity (%)</Label>
                 <Input
                   id="minHumidity"
                   type="number"
@@ -342,12 +342,14 @@ function Chart() {
           type="linear"
           stroke="var(--color-temperature)"
           strokeWidth={2}
+          isAnimationActive={false}
         />
         <Line
           dataKey="humidity"
           type="linear"
           stroke="var(--color-humidity)"
           strokeWidth={2}
+          isAnimationActive={false}
         />
       </LineChart>
     </ChartContainer>
