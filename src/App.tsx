@@ -44,14 +44,23 @@ export interface DevicesStatus {
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+  const [chartData, setChartData] = useState<ChartDataItem[]>([
+    { time: "", temperature: NaN, humidity: NaN },
+    { time: "", temperature: NaN, humidity: NaN },
+    { time: "", temperature: NaN, humidity: NaN },
+    { time: "", temperature: NaN, humidity: NaN },
+    { time: "", temperature: NaN, humidity: NaN },
+    { time: "", temperature: NaN, humidity: NaN },
+  ]);
   const [sensorData, setSensorData] = useState<SensorData>({
     temperature: 0,
     humidity: 0,
   });
-  const [devicesStatus, setDevicesStatus] = useState<DevicesStatus | null>(
-    null
-  );
+  const [devicesStatus, setDevicesStatus] = useState<DevicesStatus>({
+    light: "off",
+    fog: "off",
+    fan: "off",
+  });
 
   useEffect(() => {
     function onClientEvent(data: SensorData) {

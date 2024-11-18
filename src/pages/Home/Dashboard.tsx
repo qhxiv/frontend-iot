@@ -14,9 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useDebounce } from "@uidotdev/usehooks";
 import axios from "axios";
-import { DevicesStatus, SensorData } from "@/App";
+import { SensorData } from "@/App";
 import { DevicesStatusContext } from "@/context/DevicesStatusContext";
-import { SensorDataContext } from "@/SensorDataContext";
+import { SensorDataContext } from "@/context/SensorDataContext";
 import { ChartDataContext } from "@/context/ChartDataContext";
 
 export default function Dashboard() {
@@ -194,7 +194,7 @@ export default function Dashboard() {
         <div className="flex flex-col items-center justify-between gap-4">
           <div className="flex items-center justify-center flex-auto border-4 rounded-full border-primary aspect-square">
             <span className="text-5xl font-semibold select-none">
-              {sensorData.humidity}
+              {sensorData.humidity} %
             </span>
           </div>
 
@@ -223,7 +223,7 @@ export default function Dashboard() {
               </div>
 
               <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="maxHumidity">Max humidity ()</Label>
+                <Label htmlFor="maxHumidity">Max humidity (%)</Label>
                 <Input
                   id="maxHumidity"
                   type="number"
@@ -310,7 +310,7 @@ function Chart() {
       color: "hsl(var(--chart-1))",
     },
     humidity: {
-      label: "Humidity ()",
+      label: "Humidity (%)",
       color: "hsl(var(--chart-2))",
     },
   } satisfies ChartConfig;
