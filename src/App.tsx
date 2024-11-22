@@ -70,11 +70,7 @@ export default function App() {
         humidity: data.humidity,
       };
 
-      if (chartData.length < 6) {
-        setChartData([...chartData, newChartData]);
-      } else {
-        setChartData([...chartData.slice(1), newChartData]);
-      }
+      setChartData([...chartData.slice(1), newChartData]);
       setSensorData(data);
     }
 
@@ -89,7 +85,7 @@ export default function App() {
       socket.off("client", onClientEvent);
       socket.off("status", onStatusEvent);
     };
-  }, [chartData]);
+  }, []);
 
   return (
     <DevicesStatusContext.Provider value={{ devicesStatus, setDevicesStatus }}>

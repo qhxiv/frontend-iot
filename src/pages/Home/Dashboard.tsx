@@ -77,10 +77,7 @@ export default function Dashboard() {
             : { ...manualModeData, type: checked ? "auto" : "manual" },
           { withCredentials: true }
         )
-        .then((res) => {
-          // console.log(res);
-          setIsAuto(checked);
-        });
+        .then(() => setIsAuto(checked));
     } catch (error) {
       console.log(error);
     }
@@ -321,6 +318,7 @@ function Chart() {
         accessibilityLayer
         data={chartData}
         margin={{
+          top: 12,
           left: 12,
           right: 12,
         }}

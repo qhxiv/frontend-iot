@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useContext, useEffect } from "react";
-import { Gauge, LogOut, User } from "lucide-react";
+import { Gauge, LogOut } from "lucide-react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,14 +9,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover";
 
 import Dashboard from "./Dashboard";
-import Profile from "./Profile";
+// import Profile from "./Profile";
 import { AuthContext } from "@/context/AuthContext";
 
 export default function Home() {
@@ -83,7 +83,7 @@ export default function Home() {
               </Tooltip>
             </TooltipProvider>
 
-            <Popover>
+            {/* <Popover>
               <PopoverTrigger>
                 <TooltipProvider delayDuration={300}>
                   <Tooltip>
@@ -108,7 +108,7 @@ export default function Home() {
               <PopoverContent side="left" align="start">
                 <Profile />
               </PopoverContent>
-            </Popover>
+            </Popover> */}
           </div>
 
           <TooltipProvider delayDuration={300}>
